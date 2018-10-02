@@ -1,6 +1,6 @@
 import pandas as pd
 import s3fs
-import dateparser
+from dateparser.date import DateDataParser
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from csv import QUOTE_ALL
@@ -16,19 +16,27 @@ FOLDERS = [
 
 quote = re.compile(r'"')
 
-def _parse_date(d,t):
-    try:
-        delta = datetime.now() - dateparser.parse(d)
-        truncated = False
-    except TypeError:
-        delta = timedelta(days = 30)
-        truncated = True
-    scraped = dateparser.parse(t)
-    return datetime.date(scraped - delta), truncated
+class Parser():
+    def __init__(self, languages = ['en']):
+        self.parser = DateDataParser(languages=languages)
+
+    def _parse(self, s):
+        return self.parser.get_date_data(s).get('date_obj')
+
+    def parse_date(self, d,t):
+        try:
+            delta = datetime.now() - self._parse(d)
+            truncated = False
+        except TypeError:
+            delta = timedelta(days = 30)
+            truncated = True
+        scraped = self._parse(t)
+        return datetime.date(scraped - delta), truncated
 
 def parse_date(df):
+    parser = Parser()
     p = Pool()
-    res = p.starmap(_parse_date, zip(df.date, df.scrapeTimestamp))
+    res = p.starmap(parser.parse_date, zip(df.date, df.scrapeTimestamp))
     dates, truncated = zip(*res)
     return df.assign(date = dates, date_truncated = truncated)
 
