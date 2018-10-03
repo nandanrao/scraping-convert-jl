@@ -6,13 +6,7 @@ from datetime import datetime, timedelta
 from csv import QUOTE_ALL
 import re, json, logging
 from multiprocessing import Pool
-
-FOLDERS = [
-    'oecd-scraping/indeed-philippines',
-    'oecd-scraping/indeed-india',
-    'oecd-scraping/indeed-us',
-    'oecd-scraping/indeed-uk'
-]
+from argparse import ArgumentParser
 
 quote = re.compile(r'"')
 
@@ -60,10 +54,13 @@ def make_outfile(infile, folder, i = 1):
     parts.insert(i, folder)
     return re.sub('.jl', '.csv', '/'.join(parts))
 
+parser = ArgumentParser('Convert JL')
+parser.add_argument('folders', nargs='+')
+
 if __name__ == '__main__':
-    load_dotenv()
+    args = parser.parse_args()
     fs = s3fs.S3FileSystem()
-    for folder in FOLDERS:
+    for folder in args.folders:
         infiles = fs.ls(folder)
         outfiles = [make_outfile(f, 'indeed-csvs') for f in infiles]
         for i,o in zip(infiles, outfiles):
