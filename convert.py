@@ -7,6 +7,7 @@ from csv import QUOTE_ALL
 import re, json, logging
 from multiprocessing import Pool, cpu_count
 from argparse import ArgumentParser
+from functools import lru_cache
 
 quote = re.compile(r'"')
 
@@ -14,6 +15,7 @@ class Parser():
     def __init__(self, languages = ['en']):
         self.parser = DateDataParser(languages=languages)
 
+    @lru_cache(maxsize=256)
     def _parse(self, s):
         return self.parser.get_date_data(s).get('date_obj')
 
