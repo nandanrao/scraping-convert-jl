@@ -68,7 +68,7 @@ if __name__ == '__main__':
     for folder in args.folders:
         logging.info('CONVERTING: {}'.format(folder))
         infiles = fs.ls(folder)
-        outfiles = [make_outfile(f, 'indeed-csvs-test') for f in infiles]
+        outfiles = [make_outfile(f, 'indeed-csvs') for f in infiles]
         pool.starmap(partial(convert, fs=fs), zip(infiles, outfiles))
     pool.join()
     pool.close()
