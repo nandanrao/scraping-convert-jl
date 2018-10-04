@@ -59,6 +59,7 @@ def make_outfile(infile, folder, i = 1):
 parser = ArgumentParser('Convert JL')
 parser.add_argument('folders', nargs='+')
 parser.add_argument('--cores', default=cpu_count())
+parser.add_argument('--outpath', default='indeed-csvs')
 
 if __name__ == '__main__':
     load_dotenv()
@@ -68,7 +69,7 @@ if __name__ == '__main__':
     for folder in args.folders:
         logging.info('CONVERTING: {}'.format(folder))
         infiles = fs.ls(folder)
-        outfiles = [make_outfile(f, 'indeed-csvs') for f in infiles]
+        outfiles = [make_outfile(f, args.outpath) for f in infiles]
         pool.starmap(partial(convert, fs=fs), zip(infiles, outfiles))
     pool.join()
     pool.close()
