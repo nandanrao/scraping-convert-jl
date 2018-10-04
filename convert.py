@@ -43,7 +43,7 @@ def clean_df(df):
                 subcategory = df.categories.map(lambda l: l[1]),
                 description = df.description.str.replace(quote, ''))
             .pipe(parse_date)
-            .drop(['categories', 'meta', 'reviews'], 1))
+            .drop(['categories', 'meta', 'reviews'], 1, errors='ignore'))
 
 def convert(infile, outfile, fs):
     with fs.open(infile, 'r') as f:
